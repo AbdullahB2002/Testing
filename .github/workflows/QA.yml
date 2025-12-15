@@ -10,7 +10,7 @@ jobs:
       - name: Trigger SedStart test run
         uses: sedinqa/sedstart@v1
         with:
-          api_key: ${{ secrets.SEDSTART_API_KEY }}
+          api_key: ${{ secrets.SEDSTART_API_KEY_PROD}}
           project_id: 334
           test_id: 2077
           profile_id: 406
