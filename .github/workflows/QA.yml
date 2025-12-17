@@ -1,12 +1,7 @@
 name: Sedstart Prod
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
-  schedule:
-    - cron: "0 2 * * *"   # optional: daily 2 AM
 
 jobs:
   sedstart-run:
@@ -23,3 +18,36 @@ jobs:
           browser: chrome
           headless: false
 
+      # ✅ Microsoft Teams notification on SUCCESS
+      - name: Teams Notify - Success
+        if: success()
+        run: |
+          curl -H "Content-Type: application/json" -d '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "summary": "Sedstart Tests Passed",
+            "title": "✅ Sedstart PROD Tests PASSED",
+            "sections": [{
+              "facts": [
+                { "name": "Repository", "value": "${{ github.repository }}" },
+                { "name": "Workflow", "value": "Sedstart Prod" }
+              ]
+            }]
+          }' ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+      # ❌ Microsoft Teams notification on FAILURE
+      - name: Teams Notify - Failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" -d '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "summary": "Sedstart Tests Failed",
+            "title": "❌ Sedstart PROD Tests FAILED",
+            "sections": [{
+              "facts": [
+                { "name": "Repository", "value": "${{ github.repository }}" },
+                { "name": "Logs", "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }
+              ]
+            }]
+          }' ${{ secrets.TEAMS_WEBHOOK_URL }}
